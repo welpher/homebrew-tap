@@ -1,0 +1,27 @@
+name: Update cask
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Sync the cask from the main repository
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/welpher/lantransport/main/packaging/homebrew/lantransport.rb -o Casks/lantransport.rb
+          if git diff --quiet; then
+            echo "cask already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/lantransport.rb
+          git commit -m "sync cask from main"
+          git push
